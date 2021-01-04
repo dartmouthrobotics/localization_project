@@ -35,6 +35,11 @@ for node in range(len(mobile_nodes)):
 #for area in range(len(areas)):
 #  print(areas[area])
 
+def grow(b):
+	# b is an area
+	return b 
+
+
 # Algorithm
 def localize(areas):
 	# max speed
@@ -47,15 +52,17 @@ def localize(areas):
 		# set delta_t
 		delta_t = k - (k-1)
 		# the intersection of k is Ak
-		I[k] = areas[k]
+		I[k] = intersection(areas[k], grow(I[k-1]))
 		# loop from j = k - 1 to 1
 		for j in range(k-1, 0, -1):
 			# delta_t is j - (j-1)
 			delta_t = j - (j - 1)
 			# the intersction of j is Aj
-			Ij[j] = areas[j]
+			Ij[j] = intersection(areas[j], grow(I[j-1]))
 	return I[-1]
-print(localize(areas))
+
+a = localize(areas)
+
 
 
 # doesn't work, maybe bc missing grow? 
