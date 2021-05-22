@@ -2,47 +2,29 @@
 import os
 from shapely.geometry import Point
 import matplotlib.pyplot as plt
+from ipywidgets import interactive
 
 # suppress message
 #---------------------------
 
-
-# Variables
-
-mode = 'idle'
-mobile_nodes = []
-und_node = []
-areas = []
-point_radius=5
-radius = 20
-max_speed = 2
-screen_size=(1000, 1000)
-############
-
-# load functions
-white = (255, 255, 255)
-black = (0, 0, 0)
-figure, axes = plt.subplots()
-axes.axis("equal")
-####
-
 # --- Creates node --- #
 def create_node(table, x, y):
-  curr_node = Point(x, y)
-  table.append(curr_node)
-  plt.plot(x, y, 'o')
+	curr_node = Point(x, y)
+	table.append(curr_node)
+	plt.plot(x, y, 'o')
 
-  return curr_node
+	return curr_node
 
-# Set up space  
-w = create_node(mobile_nodes, 10, 20)
-y = create_node(mobile_nodes, 30, 10)
-x = create_node(mobile_nodes, 30, 20)
+def setup_space(mobile_nodes, areas, radius, axes):
+	# Set up space  
+	w = create_node(mobile_nodes, 10, 20)
+	y = create_node(mobile_nodes, 30, 10)
+	x = create_node(mobile_nodes, 30, 20)
 
-for node in range(len(mobile_nodes)):
-  areas.append(mobile_nodes[node].buffer(radius))
-  axes.add_patch(plt.Circle((mobile_nodes[node].x, mobile_nodes[node].y), radius, color='black', fill=False))
-#############
+	for node in range(len(mobile_nodes)):
+		areas.append(mobile_nodes[node].buffer(radius))
+		axes.add_patch(plt.Circle((mobile_nodes[node].x, mobile_nodes[node].y), radius, color='black', fill=False))
+	#############
 
 
 # --- For now, returns old circle --- #
@@ -52,7 +34,7 @@ def grow(old_circle, sbydelta):
 
 
 # Algorithm
-def localize(areas):
+def localize(areas, max_speed):
 	# max speed
 	s = max_speed
 	# set the first intersection equal to the first area
@@ -75,13 +57,35 @@ def localize(areas):
 			Ij[j] = areas[j].intersection(grow(I[j-1], s))
 	return I[-1]
 
-a = localize(areas)
+def main(radius=20):
 
-# plotting
-x,y = a.exterior.xy
-plt.plot(x,y)
-plt.fill_between(x, y, 0, color="red", alpha=0.2)
-plt.show()
+	# Variables
+
+	mode = 'idle'
+	mobile_nodes = []
+	und_node = []
+	areas = []
+	point_radius=5
+	max_speed = 2
+	screen_size=(1000, 1000)
+	############
+
+	# load functions
+	figure, axes = plt.subplots()
+	axes.axis("equal")
+	####
+
+	setup_space(mobile_nodes, areas, radius, axes)
+
+	a = localize(areas, max_speed)
+
+	# plotting
+	x,y = a.exterior.xy
+	plt.plot(x,y)
+	plt.fill_between(x, y, 0, color="red", alpha=0.2)
+	plt.show()
 
 
-# doesn't work, maybe bc missing grow? 
+interactive_plot = interactive(main, radius=(0, 50, 5))
+interactive_plot
+
